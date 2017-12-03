@@ -33,12 +33,12 @@ io.on('connection', (socket) => {
   socket.broadcast.emit('newMessage', generateMessage('admin', 'New user joined.'));
 
   // custom event listener
-  socket.on('createMessage', (message) => {
+  socket.on('createMessage', (message, callback) => {
     console.log('createMessage', message);
 
     // emit an event to all connections
     io.emit('newMessage', generateMessage(message.from, message.text));
-
+    callback('This is from the server');
     // // emits an event to all but not this socket
     // socket.broadcast.emit('newMessage', {
     //   from: message.from,
