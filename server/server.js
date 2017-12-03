@@ -4,7 +4,7 @@ const path = require('path'); // node-internal module
 const express = require('express');
 const socketIO = require('socket.io');
 
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 const publicPath = path.join(__dirname, '../public');
 
@@ -39,13 +39,11 @@ io.on('connection', (socket) => {
     // emit an event to all connections
     io.emit('newMessage', generateMessage(message.from, message.text));
     callback('This is from the server');
-    // // emits an event to all but not this socket
-    // socket.broadcast.emit('newMessage', {
-    //   from: message.from,
-    //   text: message.text,
-    //   createdAt: new Date().getTime()
-    // });
+  });
 
+
+  socket.on('createLocationMessage', (coords) => {
+    io.emit('newLocationMessage', generateLocationMessage('admin', coords.latitude, coords.longitude));
   });
 
   // disconnect
