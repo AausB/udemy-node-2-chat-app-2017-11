@@ -20,12 +20,32 @@ function scrollToBottom() {
 
 // built-in  event for establishing connection
 socket.on('connect', function () {
-  console.log('Connected to server');
+  var params = jQuery.deparam(window.location.search);
+
+  socket.emit('join', params, function (error) {
+    if (error) {
+      alert(error);
+      window.location.href = '/'; // redirect back to root page
+    } else {
+      console.log('Join: no error');
+    }
+  });
 });
 
 // built-in event for disconnect
 socket.on('disconnect', function () {
   console.log('Disconnected from server')
+});
+
+socket.on('updateUserList', function (users) {
+  console.log('updateUserlist:', users);
+  var ol = jQuery('<ol></ol>');
+
+  users.forEach(function (user) {
+    ol.append(jQuery('<li></li>').text(user));
+  });
+
+  jQuery('#users').html(ol);
 });
 
 // custom event listener
