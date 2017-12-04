@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
     // socket.emit remains as it is
 
     // emitting to a single user
-    socket.emit('newMessage', generateMessage('admin', 'Welcome to the chat app.'));
+    socket.emit('newMessage', generateMessage('admin', `Hi ${params.name}. Welcome to the chat app.`));
     socket.broadcast.to(params.room).emit('newMessage', generateMessage('admin', `${params.name} has joined the room.`));
 
     callback(); // the OK path for the caller
@@ -59,16 +59,23 @@ io.on('connection', (socket) => {
 
   // custom event listener
   socket.on('createMessage', (message, callback) => {
-    console.log('createMessage', message);
+    let user = users.getUser(socket.id);
 
-    // emit an event to all connections
-    io.emit('newMessage', generateMessage(message.from, message.text));
-    callback('This is from the server');
+    if (user && isRealString(message.text)) {
+      // emit an event to all connections
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
+
+    callback();
   });
 
 
   socket.on('createLocationMessage', (coords) => {
-    io.emit('newLocationMessage', generateLocationMessage('admin', coords.latitude, coords.longitude));
+    let user = users.getUser(socket.id);
+
+    if (user) {
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+    }
   });
 
   // disconnect
